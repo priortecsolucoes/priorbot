@@ -53,17 +53,12 @@ def ask_question(request: PriorBotQuestion):
         prompt = ChatPromptTemplate.from_template(
             '''Responda as perguntas se baseando no contexto fornecido.
             contexto: {contexto}
-            pergunta: {request.question}'''
+            pergunta: {pergunta}'''
         )
         
         #Configurando o Retriever
         retriever = vectorstore.as_retriever(search_type='mmr', search_kwargs={'k': 5, 'fetch_k': 25})
-        
-        setup = RunnableParallel({
-            'pergunta': RunnablePassthrough(),
-            'contexto': retriever
-        })
-        
+               
         #Juntando os Documentos
         setup = RunnableParallel({
             'pergunta': RunnablePassthrough(),
@@ -73,7 +68,7 @@ def ask_question(request: PriorBotQuestion):
         
         chain = setup | prompt | ChatOpenAI() | StrOutputParser()
 
-        response = chain.invoke('Até qual quilometragem é necessário amaciar o motor do carro?')
+        response = chain.invoke(request.question)
         print(response)
         
         return {"message": response}
