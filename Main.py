@@ -53,7 +53,7 @@ def ask_question(request: PriorBotQuestion):
         prompt = ChatPromptTemplate.from_template(
             '''Responda as perguntas se baseando no contexto fornecido.
             contexto: {contexto}
-            pergunta: {pergunta}'''
+            pergunta: {request.question}'''
         )
         
         #Configurando o Retriever
