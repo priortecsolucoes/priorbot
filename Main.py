@@ -8,6 +8,7 @@ import os
 from langchain.chat_models import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from pydantic import BaseModel
+from fastapi import FastAPI
 
 app = FastAPI()
 
