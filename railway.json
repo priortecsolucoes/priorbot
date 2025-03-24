@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "hypercorn TagWriter:app --bind \"[::]:$PORT\""
+    "startCommand": "hypercorn Main:app --bind \"[::]:$PORT\""
   }
 }
