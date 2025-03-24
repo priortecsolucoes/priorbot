@@ -22,10 +22,14 @@ def join_documents(input):
 class PriorBotQuestion(BaseModel):
     question: str
     user: str
+    key: str
 
 @app.put("/askQuestion")
 def ask_question(request: PriorBotQuestion):
     try:
+        if (key != os.getenv('PRIORBOT_KEY')):
+            raise RuntimeError("Chave incorreta!")            
+        
         #Carregamento e dividindo documentos
         paginas = []
         for caminho in caminhos:
