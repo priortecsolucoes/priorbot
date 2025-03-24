@@ -5,3 +5,4 @@ langchain_text_splitters
 langchain_openai
 langchain_core
 pypdf
+faiss-gpu
