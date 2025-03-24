@@ -29,7 +29,7 @@ class PriorBotQuestion(BaseModel):
 def ask_question(request: PriorBotQuestion):
     try:
         if (request.key != os.getenv('PRIORBOT_KEY')):
-            raise RuntimeError("Chave incorreta!")            
+            raise RuntimeError(f"Chave incorreta - {request.key}")            
         
         #Carregamento e dividindo documentos
         paginas = []
