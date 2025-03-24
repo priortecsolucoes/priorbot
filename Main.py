@@ -25,7 +25,7 @@ class PriorBotQuestion(BaseModel):
     user: str
     key: str
 
-@app.put("/ask_question")
+@app.post("/ask_question")
 def ask_question(request: PriorBotQuestion):
     try:
         if (request.key != os.getenv('PRIORBOT_KEY')):
