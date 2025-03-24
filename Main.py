@@ -68,6 +68,7 @@ def ask_question(request: PriorBotQuestion):
         
         chain = setup | prompt | ChatOpenAI() | StrOutputParser()
 
+        print(request.question)
         response = chain.invoke(request.question)
         print(response)
         
