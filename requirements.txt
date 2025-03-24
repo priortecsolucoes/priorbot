@@ -2,8 +2,5 @@ fastapi==0.100.0
 hypercorn==0.14.4
 langchain_community
 langchain_text_splitters
-langchain_openai.embeddings
-langchain_core.prompts
-langchain_core.runnables
-langchain.chat_models
+langchain_openai
 langchain_core
