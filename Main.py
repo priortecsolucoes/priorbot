@@ -1,6 +1,7 @@
 from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
+from langchain.vectorstores import Chroma
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
@@ -44,11 +45,16 @@ def ask_question(request: PriorBotQuestion):
             separators=["\n\n", "\n", ".", " ", ""]
         )
         documents = recur_split.split_documents(paginas)
+        diretorio = 'chroma_vectorstore'
         
         #Criação da base de dados de vetores
-        vectorstore = FAISS.from_documents(
-            documents=documents,
-            embedding=OpenAIEmbeddings()
+        #vectorstore = FAISS.from_documents(
+        #    documents=documents,
+        #    embedding=OpenAIEmbeddings()
+        #)
+        vectorstore = Chroma(
+            embedding_function=OpenAIEmbeddings(),
+            persist_directory=diretorio
         )
         
         #Criando Estrutura de Conversa
