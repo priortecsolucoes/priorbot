@@ -76,9 +76,9 @@ def ask_question(request: PriorBotQuestion):
         
         chain = setup | prompt | ChatOpenAI() | StrOutputParser()
 
-        print(request.question)
+        #print(request.question)
         response = chain.invoke(request.question)
-        print(response)
+        #print(response)
         
         return JSONResponse(content={
             "message": "Resposta gerada com sucesso",
