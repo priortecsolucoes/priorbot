@@ -72,6 +72,9 @@ def ask_question(request: PriorBotQuestion):
         response = chain.invoke(request.question)
         print(response)
         
-        return response
+        return {
+            "message": "Resposta gerada com sucesso",
+            "response": response
+        }
     except Exception as e:
         return {"message": f"Erro ao tentar responder pergunta: {e}" }
