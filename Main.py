@@ -29,7 +29,7 @@ class PriorBotQuestion(BaseModel):
 def ask_question(request: PriorBotQuestion):
     try:
         if (request.key != os.getenv('PRIORBOT_KEY')):
-            raise RuntimeError(f"Chave incorreta - {request.key}")            
+            raise HTTPException(status_code=401, detail="Chave incorreta")         
         
         #Carregamento e dividindo documentos
         paginas = []
@@ -72,9 +72,11 @@ def ask_question(request: PriorBotQuestion):
         response = chain.invoke(request.question)
         print(response)
         
-        return {
+        return JSONResponse(content={
             "message": "Resposta gerada com sucesso",
             "response": response
-        }
+        })
+    except HTTPException as http_err:
+        return JSONResponse(status_code=http_err.status_code, content={"message": http_err.detail})
     except Exception as e:
-        return {"message": f"Erro ao tentar responder pergunta: {e}" }
+        return JSONResponse(status_code=500, content={"message": f"Erro ao tentar responder pergunta: {str(e)}"})
