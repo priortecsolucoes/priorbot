@@ -80,10 +80,11 @@ def ask_question(request: PriorBotQuestion):
         response = chain.invoke(request.question)
         print(response)
         
-        return JSONResponse(content={
-            "message": "Resposta gerada com sucesso",
-            "response": response
-        })
+        #return JSONResponse(content={
+        #    "message": "Resposta gerada com sucesso",
+        #    "response": response
+        #})
+        return response
     except HTTPException as http_err:
         return JSONResponse(status_code=http_err.status_code, content={"message": http_err.detail})
     except Exception as e:
