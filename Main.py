@@ -46,16 +46,16 @@ def processa_e_callback(question, user, callbackUrl, requestId):
         diretorio = 'chroma_vectorstore'
             
         #Criação da base de dados de vetores
-        vectorstore = Chroma.from_documents(
-            documents=documents,
-            embedding=OpenAIEmbeddings(),
-            persist_directory=diretorio
-        )
-        #Leitura da base de dados de vetores
-        #vectorstore = Chroma(
-        #    embedding_function=OpenAIEmbeddings(),
+        #vectorstore = Chroma.from_documents(
+        #    documents=documents,
+        #    embedding=OpenAIEmbeddings(),
         #    persist_directory=diretorio
         #)
+        #Leitura da base de dados de vetores
+        vectorstore = Chroma(
+            embedding_function=OpenAIEmbeddings(),
+            persist_directory=diretorio
+        )
         prompt = ChatPromptTemplate.from_template(
             '''Responda as perguntas se baseando no contexto fornecido.
             contexto: {contexto}
