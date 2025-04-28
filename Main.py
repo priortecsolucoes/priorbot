@@ -27,6 +27,7 @@ class PriorBotQuestion(BaseModel):
     question: str
     user: str
     key: str
+    callbackUrl: str
 
 @app.post("/ask_question")
 def ask_question(request: PriorBotQuestion):
