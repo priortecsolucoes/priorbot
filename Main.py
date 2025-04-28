@@ -16,7 +16,7 @@ import time
 app = FastAPI()
 
 caminhos = [
-    "Manual_de_instruções_Saveiro_24A.5B1.SAV.66_LOW (1).pdf"
+    "Manual Sennebogen - Operação - 870M - 870.0.381.pdf"
 ]
 
 def join_documents(input):
