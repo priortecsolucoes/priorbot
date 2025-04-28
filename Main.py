@@ -1,6 +1,5 @@
 from langchain_community.document_loaders.pdf import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
 from langchain.vectorstores import Chroma
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
@@ -9,9 +8,9 @@ import os
 from langchain.chat_models import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from pydantic import BaseModel
-from fastapi import FastAPI
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
+import requests
 
 app = FastAPI()
 
@@ -29,78 +28,74 @@ class PriorBotQuestion(BaseModel):
     key: str
     callbackUrl: str
 
-@app.post("/ask_question")
-def ask_question(request: PriorBotQuestion):
+def processa_e_callback(question, user, callbackUrl, requestId):
     try:
-        if (request.key != os.getenv('PRIORBOT_KEY')):
-            raise HTTPException(status_code=401, detail="Chave incorreta")         
-        
-        #Carregamento e dividindo documentos
+        # Carrega e processa os documentos (igual ao original)
         paginas = []
         for caminho in caminhos:
             loader = PyPDFLoader(caminho)
             paginas.extend(loader.load())
-            recur_split = RecursiveCharacterTextSplitter(
+        recur_split = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=100,
             separators=["\n\n", "\n", ".", " ", ""]
         )
         documents = recur_split.split_documents(paginas)
         diretorio = 'chroma_vectorstore'
-        
-        #Criação da base de dados de vetores
-        #vectorstore = FAISS.from_documents(
-        #    documents=documents,
-        #    embedding=OpenAIEmbeddings()
-        #)
         vectorstore = Chroma(
             embedding_function=OpenAIEmbeddings(),
             persist_directory=diretorio
         )
-        
-        #Criando Estrutura de Conversa
         prompt = ChatPromptTemplate.from_template(
             '''Responda as perguntas se baseando no contexto fornecido.
             contexto: {contexto}
             pergunta: {pergunta}'''
         )
-        
-        #Configurando o Retriever
         retriever = vectorstore.as_retriever(search_type='mmr', search_kwargs={'k': 5, 'fetch_k': 25})
-               
-        #Juntando os Documentos
+
         setup = RunnableParallel({
             'pergunta': RunnablePassthrough(),
             'contexto': retriever
         }) | join_documents
-        
-        
         chain = setup | prompt | ChatOpenAI() | StrOutputParser()
-
-        print(request.question)
-        response = chain.invoke(request.question)
+        print(question)
+        response = chain.invoke(question)
         print(response)
-        
-        # Novo bloco: Se callbackUrl for enviado na requisição, faz callback
-        if request.callbackUrl:
-            payload = {
-                "requestId": request.requestId,
-                "user": request.user,
-                "response": response
-            }
-            try:
-                cb_resp = requests.post(request.callbackUrl, json=payload, timeout=10)
-                cb_resp.raise_for_status()
-            except Exception as cb_err:
-                # (Opcional) Logue o erro se quiser
-                print(f"Erro ao chamar callback: {cb_err}")
-
-        # Retorna resposta padrão HTTP, independente do callback
-        return JSONResponse(content={
-            "message": "Resposta gerada com sucesso",
+        # Faz o callback
+        payload = {
+            "requestId": requestId,
+            "user": user,
             "response": response
+        }
+        cb_resp = requests.post(callbackUrl, json=payload, timeout=15)
+        cb_resp.raise_for_status()
+        print("Callback enviado com sucesso.")
+    except Exception as cb_err:
+        print(f"Erro ao processar ou chamar callback: {cb_err}")
+
+@app.post("/ask_question")
+async def ask_question(request: PriorBotQuestion, background_tasks: BackgroundTasks):
+    try:
+        if (request.key != os.getenv('PRIORBOT_KEY')):
+            raise HTTPException(status_code=401, detail="Chave incorreta")
+
+        # Gere um requestId único, pode ficar melhor ainda se for passado pelo client
+        requestId = f"{request.user}_{int(round(time.time() * 1000))}"
+
+        # PROCESSO EM BACKGROUND!
+        background_tasks.add_task(
+            processa_e_callback, 
+            request.question, 
+            request.user, 
+            request.callbackUrl,
+            requestId
+        )
+
+        return JSONResponse(content={
+            "message": "Pergunta recebida! Você receberá a resposta em breve.",
+            "requestId": requestId
         })
-        return response
+
     except HTTPException as http_err:
         return JSONResponse(status_code=http_err.status_code, content={"message": http_err.detail})
     except Exception as e:
