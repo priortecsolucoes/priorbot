@@ -87,8 +87,7 @@ async def ask_question(request: PriorBotQuestion, background_tasks: BackgroundTa
             processa_e_callback, 
             request.question, 
             request.user, 
-            request.callbackUrl,
-            requestId
+            request.callbackUrl
         )
 
         return JSONResponse(content={
