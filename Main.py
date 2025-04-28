@@ -79,7 +79,7 @@ def ask_question(request: PriorBotQuestion):
 
         print(request.question)
         response = chain.invoke(request.question)
-        #print(response)
+        print(response)
         
         # Novo bloco: Se callbackUrl for enviado na requisição, faz callback
         if request.callbackUrl:
