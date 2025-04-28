@@ -100,6 +100,8 @@ async def ask_question(request: PriorBotQuestion, background_tasks: BackgroundTa
         })
 
     except HTTPException as http_err:
+        print("Erro na API: " + http_err.detail)
         return JSONResponse(status_code=http_err.status_code, content={"message": http_err.detail})
     except Exception as e:
+        print("Erro generico na API: " + str(e))
         return JSONResponse(status_code=500, content={"message": f"Erro ao tentar responder pergunta: {str(e)}"})
