@@ -80,6 +80,21 @@ def ask_question(request: PriorBotQuestion):
         response = chain.invoke(request.question)
         #print(response)
         
+        # Novo bloco: Se callbackUrl for enviado na requisição, faz callback
+        if request.callbackUrl:
+            payload = {
+                "requestId": request.requestId,
+                "user": request.user,
+                "response": response
+            }
+            try:
+                cb_resp = requests.post(request.callbackUrl, json=payload, timeout=10)
+                cb_resp.raise_for_status()
+            except Exception as cb_err:
+                # (Opcional) Logue o erro se quiser
+                print(f"Erro ao chamar callback: {cb_err}")
+
+        # Retorna resposta padrão HTTP, independente do callback
         return JSONResponse(content={
             "message": "Resposta gerada com sucesso",
             "response": response
