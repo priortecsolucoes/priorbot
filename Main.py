@@ -42,11 +42,20 @@ def processa_e_callback(question, user, callbackUrl, requestId):
             separators=["\n\n", "\n", ".", " ", ""]
         )
         documents = recur_split.split_documents(paginas)
+
         diretorio = 'chroma_vectorstore'
-        vectorstore = Chroma(
-            embedding_function=OpenAIEmbeddings(),
+            
+        #Criação da base de dados de vetores
+        vectorstore = Chroma.from_documents(
+            documents=documents,
+            embedding=OpenAIEmbeddings(),
             persist_directory=diretorio
         )
+        #Leitura da base de dados de vetores
+        #vectorstore = Chroma(
+        #    embedding_function=OpenAIEmbeddings(),
+        #    persist_directory=diretorio
+        #)
         prompt = ChatPromptTemplate.from_template(
             '''Responda as perguntas se baseando no contexto fornecido.
             contexto: {contexto}
