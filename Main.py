@@ -57,7 +57,7 @@ def processa_e_callback(question, user, callbackUrl, requestId):
             persist_directory=diretorio
         )
         prompt = ChatPromptTemplate.from_template(
-            '''Responda as perguntas se baseando no contexto fornecido.
+            '''Responda as perguntas se baseando no contexto fornecido e somente no contexto fornecido.
             contexto: {contexto}
             pergunta: {pergunta}'''
         )
