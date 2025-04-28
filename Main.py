@@ -82,6 +82,8 @@ async def ask_question(request: PriorBotQuestion, background_tasks: BackgroundTa
         # Gere um requestId único, pode ficar melhor ainda se for passado pelo client
         requestId = f"{request.user}_{int(round(time.time() * 1000))}"
 
+        print("RequestId: " + requestId)
+
         # PROCESSO EM BACKGROUND!
         background_tasks.add_task(
             processa_e_callback, 
