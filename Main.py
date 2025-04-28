@@ -76,6 +76,7 @@ def processa_e_callback(question, user, callbackUrl, requestId):
 @app.post("/ask_question")
 async def ask_question(request: PriorBotQuestion, background_tasks: BackgroundTasks):
     try:
+        print("ask_question")
         if (request.key != os.getenv('PRIORBOT_KEY')):
             raise HTTPException(status_code=401, detail="Chave incorreta")
 
